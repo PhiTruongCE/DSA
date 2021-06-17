@@ -63,7 +63,7 @@ public:
 	void insert(const int &value);
 	void remove(const int &value);
 	Node* getRoot(){return this->root;}
-	void printInorder(Node* node);
+	void printInorder(Node*);
 	void printPreorder(Node* node);
 };
 
@@ -398,8 +398,7 @@ int main(){
 	vl.insert(8);
 	vl.insert(6);
 	root = vl.getRoot();
-	vl.printInorder(root);
-	cout<<endl;
+	//vl.printInorder(root);
 	vl.printPreorder(root);
 	
 
