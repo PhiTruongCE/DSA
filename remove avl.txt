@@ -1,0 +1,147 @@
+Node* AVL::removeRec(Node *&node, const int &value, bool &shorter, bool &success)
+{
+	if (node == NULL) {
+		shorter = false;
+		success = false;
+		return NULL;
+	}
+	if (value < node->data) {
+		node->left = removeRec(node->left, value, shorter, success);
+		if (shorter) {
+			node = removeRightBalance(node, shorter);
+		}
+	}
+	else if (value > node->data) {
+		node->right = removeRec(node->right, value, shorter, success);
+		if (shorter) {
+			node = removeLeftBalance(node, shorter);
+		}
+	}
+	else {
+		Node* deleteNode = node;
+		if (node->right == NULL) {
+			Node* newNode = node->left;
+			success = true;
+			shorter = true;
+			delete deleteNode;
+			return newNode;
+		}
+		else if (node->left == NULL) {
+			Node* newNode = node->right;
+			success = true;
+			shorter = true;
+			delete deleteNode;
+			return newNode;
+		}
+		else {
+			Node* exchPtr = node->left;
+			while (exchPtr->right != NULL) {
+				exchPtr = exchPtr->right;
+			}
+			node->data = exchPtr->data;
+			node->left = removeRec(node->left, exchPtr->data, shorter, success);
+			if (shorter) {
+				node = removeRightBalance(node, shorter);
+			}
+		}
+	}
+	return node;
+}
+
+void AVL::remove(const int &value)
+{
+	bool shorter = false;
+	bool success = false;
+	this->root = removeRec(this->root, value, shorter,success);
+}
+
+Node* AVL::removeRightBalance(Node *&node, bool &shorter)
+{
+		if (node->balance == LH) {
+			node->balance = EH;
+		}
+		else if (node->balance == EH) {
+			node->balance = RH;
+			shorter = false;
+		}
+		else {
+			Node* rightTree = node->right;
+			if (rightTree->balance == LH) {
+				Node* leftTree = rightTree->left;
+				if (leftTree->balance == LH) {
+					rightTree->balance = RH;
+					node->balance = EH;
+				}
+				else if (leftTree->balance == EH) {
+					node->balance = LH;
+					rightTree->balance = EH;
+				}
+				else {
+					node->balance = LH;
+					rightTree->balance = EH;
+				}
+				leftTree->balance = EH;
+				node->right = rotateRight(rightTree);
+				node->right = rotateRight(rightTree);
+				node = rotateLeft(node);
+			}
+			else {
+				if (rightTree->balance != EH) {
+					node->balance = EH;
+					rightTree->balance = EH;
+				}
+				else {
+					node->balance = RH;
+					rightTree->balance = LH;
+					shorter = false;
+				}
+				node = rotateLeft(node);
+			}
+		}
+		return node;
+}
+
+Node *AVL::removeLeftBalance(Node* &node, bool &shorter)
+{
+	if (node->balance == RH) {
+		node->balance = EH;
+	}
+	else if (node->balance == EH) {
+		node->balance = LH;
+		shorter = false;
+	}
+	else {
+		Node* leftTree = node->left;
+		if (leftTree->balance == RH) {
+			Node* rightTree = leftTree->right;
+			if (rightTree->balance == RH) {
+				leftTree->balance = LH;
+				node->balance = EH;
+			}
+			else if (rightTree->balance == EH) {
+				node->balance = EH;
+				leftTree->balance = EH;
+			}
+			else {
+				node->balance = RH;
+				leftTree->balance = EH;
+			}
+			rightTree->balance = EH;
+			node->left = rotateLeft(leftTree);
+			node = rotateRight(node);
+		}
+		else {
+			if (leftTree->balance != EH) {
+				node->balance = EH;
+				leftTree->balance = EH;
+			}
+			else {
+				node->balance = LH;
+				leftTree->balance = RH;
+				shorter = false;
+			}
+			node = rotateRight(node);
+		}
+	}
+	return node;
+}
